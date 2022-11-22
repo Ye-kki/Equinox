@@ -8,7 +8,6 @@ var kelvin = new iro.ColorPicker(".kelvin", {
       { 
         component: iro.ui.Slider,
         options: {
-          // can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
           sliderType: 'kelvin'
         }
       },
@@ -25,16 +24,16 @@ var value = new iro.ColorPicker(".value", {
       { 
         component: iro.ui.Slider,
         options: {
-          // can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
           sliderType: 'value'
         }
       },
     ]
   });
   
+kelvin.on(["color:init", "color:change"], function (color) {
+    console.log('K' + parseInt(color.kelvin));
+});
 
-  kelvin.on(["color:init", "color:change"], function (color) {
-  });
-
-  value.on(["color:init", "color:change"], function (color) {
+value.on(["color:init", "color:change"], function (color1) {
+    console.log('B' + parseInt(color1.value/100*255));
 });
