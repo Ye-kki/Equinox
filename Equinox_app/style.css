@@ -14,7 +14,7 @@
     width: 100%;
     height: 100vh;
     display: inline-block;
-    background: linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(239, 177, 188, 0.9) 38.19%, rgba(0, 0, 0, 0.9) 83.76%);
+    background: linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(239, 177, 188, 0.9) 37%, rgba(0, 0, 0, 0.9) 76.28%);
     position: relative;
 }
 
@@ -85,7 +85,7 @@
     height: 308px;
     position: absolute;
     margin: auto;
-    border: 10px solid #FFD2D2;
+    border: 5px solid #FFD2D2;
     filter: blur(3px);
     border-radius: 154px;
     box-sizing: border-box;
