@@ -1,0 +1,175 @@
+.button {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    box-sizing: border-box;
+    background: linear-gradient(135.37deg, rgba(0, 0, 0, 0.4) 4.29%, rgba(102, 102, 102, 0.4) 95.6%), #313131;
+    background-blend-mode: soft-light, normal;
+    border: 1px solid rgba(57, 57, 57, 0.4);
+    box-shadow: -5px -5px 10px #383838, 5px 5px 10px #0C0C0C;
+}
+
+
+.background {
+    width: 100%;
+    height: 100vh;
+    display: inline-block;
+    background: linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(239, 177, 188, 0.9) 38.19%, rgba(0, 0, 0, 0.9) 83.76%);
+    position: relative;
+}
+
+.background .logo {
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    margin-top: 70px;
+}
+
+.background .lighting {
+    width: 100%;
+    height: 340px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 53px;
+}
+.background .lighting .blur-circle {
+    width: 338px;
+    height: 338px;
+    position: absolute;
+    margin: auto;
+    mix-blend-mode: normal;
+    border: 55px solid #FFD2D2;
+    filter: blur(22px);
+    border-radius: 169px;
+    box-sizing: border-box;
+}
+
+.background .lighting .outer-circle {
+    width: 338px;
+    height: 338px;
+    position: absolute;
+    margin: auto;
+    border: 2px solid #282828;
+    border-radius: 169px;
+    box-sizing: border-box;
+}
+
+.background .lighting .middle-circle {
+    width: 336px;
+    height: 336px;
+    position: absolute;
+    margin: auto;
+    border: 14px solid #1A1A1A;
+    border-radius: 168px;
+    box-sizing: border-box;
+}
+
+.background .lighting .inner-circle {
+    width: 310px;
+    height: 310px;
+    position: absolute;
+    margin: auto;
+    border: 2px solid #282828;
+    border-radius: 155px;
+    box-sizing: border-box;
+
+}
+
+.background .lighting .light-circle {
+    width: 308px;
+    height: 308px;
+    position: absolute;
+    margin: auto;
+    border: 10px solid #FFD2D2;
+    filter: blur(3px);
+    border-radius: 154px;
+    box-sizing: border-box;
+}
+
+.background .color-option {
+    width: 100%;
+    position: relative;
+    display: block;
+    margin-top: 90px;
+
+}
+
+.background .color-option .kelvin-text {
+    width: 100%;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    color: white;
+    font-size: 15px;
+}
+
+.inner {
+    width: 315px;
+    height: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.background .color-option .kelvin-text .left-text{
+    position: absolute;
+    left: 0;
+}
+.background .color-option .kelvin-text .right-text{
+    position: absolute;
+    right: 0;
+}
+
+.background .color-option .kelvin {
+    display: flex;
+    justify-content: center;
+}
+
+.background .color-option .value-text {
+    width: 100%;
+    height: 28px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin-top: 15px;
+    color: white;
+    font-size: 20px;
+}
+
+.background .color-option .value-text .left-text{
+    position: absolute;
+    left: 0;
+}
+.background .color-option .value-text .right-text{
+    position: absolute;
+    right: 0;
+}
+
+.background .color-option .value {
+    display: flex;
+    justify-content: center;
+}
+
+.background .btn {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.background .btn .left-btn{
+    left: 0;
+    position: absolute;
+}
+
+.background .btn .right-btn{
+    right: 0;
+    position: absolute;
+}

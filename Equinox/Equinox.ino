@@ -5,9 +5,6 @@
 #include <FS.h>
 
 #define LED_COUNT 52
-#define CLK 2    // 2번핀을 CLK로 지정
-#define DT 3    // 3번핀을 DT로 지정
-#define SW 4     // 4번핀을 스위치핀으로 지정
 
 ESP8266WebServer server;
 WebSocketsServer webSocket = WebSocketsServer(81);
@@ -22,6 +19,7 @@ uint16_t redValue[2];
 uint16_t greenValue[2];
 uint16_t blueValue[2];
 int serverTime = 0;
+
 
 int counter = 0;           // 회전 카운터 측정용 변수
 int currentStateCLK;       // CLK의 현재 신호상태 저장용 변수
