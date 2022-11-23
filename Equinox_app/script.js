@@ -80,13 +80,13 @@ kelvin.on(["color:init", "color:change"], function (color) {
     console.log(Blue);
 
     gsap.to(background, 0.7, {
-      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.5) 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.3) 37%, rgba(0, 0, 0, 0.9) 76.28%)",
     });
     gsap.to(blurCircle, 0.7, {
-      border: "55px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.5)",
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.5)",
     });
     gsap.to(lightCircle, 0.7, {
-      border: "5px solid rgb(" + (Red+50) + ', ' + (Green+50) + ', ' + (Blue+50) + ")",
+      border: "5px solid rgb(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ")",
     });
 });
 

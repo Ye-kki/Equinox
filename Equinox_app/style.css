@@ -26,6 +26,7 @@
     font-size: 20px;
     color: white;
     margin-top: 70px;
+    font-family: 'Archivo', sans-serif;
 }
 
 .background .lighting {
@@ -43,8 +44,8 @@
     position: absolute;
     margin: auto;
     mix-blend-mode: normal;
-    border: 55px solid #FFD2D2;
-    filter: blur(22px);
+    border: 40px solid rgba(255, 210, 210, 0.9);
+    filter: blur(15px);
     border-radius: 169px;
     box-sizing: border-box;
 }
