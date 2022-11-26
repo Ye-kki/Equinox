@@ -93,3 +93,32 @@ kelvin.on(["color:init", "color:change"], function (color) {
 value.on(["color:init", "color:change"], function (color1) {
     console.log('B' + parseInt(color1.value/100*255));
 });
+
+const rightBtn = document.querySelector(".right-btn");
+const leftBtn = document.querySelector(".left-btn");
+const colorOption = document.querySelector(".color-option");
+
+rightBtn.addEventListener('click', function() {
+  gsap.to(blurCircle, 0, {
+    display: "none",
+  });
+  gsap.to(lightCircle, 0, {
+    display: "none",
+  });
+  gsap.to(colorOption, 0.2, {
+    right: "100%",
+  });
+});
+
+
+leftBtn.addEventListener('click', function() {
+  gsap.to(blurCircle, 0, {
+    display: "block",
+  });
+  gsap.to(lightCircle, 0, {
+    display: "block",
+  });
+  gsap.to(colorOption, 0.2, {
+    right: "0",
+  });
+});
