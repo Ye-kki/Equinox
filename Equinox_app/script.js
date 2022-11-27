@@ -181,6 +181,7 @@ window.onload = () => {
   date = time.getDate();  // 날짜
   today = String(year) + String(month) + String(date);
   sunRequest();
+  update();
   setInterval(sunRequest, 600*1000);
 }
 
