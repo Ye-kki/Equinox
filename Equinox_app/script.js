@@ -94,7 +94,6 @@ value.on(["color:init", "color:change"], function (color1) {
     console.log('B' + parseInt(color1.value/100*255));
 });
 
-
 const leftBtn = document.querySelector(".left-btn");
 const rightBtn = document.querySelector(".right-btn");
 const colorOption = document.querySelector(".color-option");

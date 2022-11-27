@@ -234,3 +234,9 @@
     right: 0;
     position: absolute;
 }
+
+.background .color-option .sun-option {
+    width: 50%;
+    height: 100%;
+    background-color: aqua;
+}
