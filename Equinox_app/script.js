@@ -1,4 +1,5 @@
 let Red, Green, Blue;
+let brightness;
 
 function kelvinToRGB(Temperature) {
 Temperature = Temperature / 100
@@ -80,18 +81,28 @@ kelvin.on(["color:init", "color:change"], function (color) {
     console.log(Blue);
 
     gsap.to(background, 0.7, {
-      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.3) 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
     });
     gsap.to(blurCircle, 0.7, {
-      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.5)",
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
     });
     gsap.to(lightCircle, 0.7, {
-      border: "5px solid rgb(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ")",
+      border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
     });
 });
 
 value.on(["color:init", "color:change"], function (color1) {
     console.log('B' + parseInt(color1.value/100*255));
+    brightness = color1.value;
+    gsap.to(background, 0.7, {
+      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+    });
+    gsap.to(blurCircle, 0.7, {
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+    });
+    gsap.to(lightCircle, 0.7, {
+      border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+    });
 });
 
 const leftBtn = document.querySelector(".left-btn");
@@ -109,7 +120,7 @@ leftBtn.addEventListener('click', function () {
     right: "0",
   });
   gsap.to(background, 0.2, {
-    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ", 0.3) 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
   });
   gsap.to(sun, 0, {
     display: "none",
@@ -128,7 +139,7 @@ rightBtn.addEventListener('click', function () {
     right: "100%",
   });
   gsap.to(background, 0.2, {
-    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(255, 255, 255, 0.9) 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
   });
   gsap.to(sun, 0, {
     display: "block",
