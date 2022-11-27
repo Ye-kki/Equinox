@@ -176,6 +176,8 @@ xhr.onreadystatechange = function () {
         console.log(sunset);
         sunriseMin = (parseInt(sunrise[0]*10) + parseInt(sunrise[1])) * 60 + parseInt(sunrise[2]*10) + parseInt(sunrise[3]);
         sunsetMin = (parseInt(sunset[0]*10) + parseInt(sunset[1])) * 60 + parseInt(sunset[2]*10) + parseInt(sunset[3]);
+        document.getElementById('sunrise-time').textContent= "AM " + sunrise[0] + sunrise[1] + ':' + sunrise[2] + sunrise[3];
+        document.getElementById('sunset-time').textContent= "PM " + sunset[0] + sunset[1] + ':' + sunset[2] + sunset[3];
       }
 };
 
@@ -206,6 +208,12 @@ function update() {
   sunriseMin, sunrsetMin;
   now = hours*60 + minutes;
 
+  document.getElementById('real-time').textContent= hours + ':' + minutes;
+  if(now>=720 && now <1440){
+    document.getElementById('ampm').textContent= 'PM';
+  }
+  else document.getElementById('ampm').textContent= 'AM';
+  
   console.log(currentDegree, now);
   drawSun();
 }
