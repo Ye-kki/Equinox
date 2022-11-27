@@ -198,16 +198,12 @@ function update() {
   context.clearRect(0, 0, canvas.width, canvas.height);
 
   time = new Date();
-  year = time.getFullYear(); // 년도
-  month = time.getMonth() + 1;  // 월
-  date = time.getDate();  // 날짜   
   hours = time.getHours(); // 시
-  minutes = time.getMinutes();  // 분
-  today = String(year) + String(month) + String(date);
-  sunrise, sunset;
-  sunriseMin, sunrsetMin;
+  minutes = 8;  // 분
   now = hours*60 + minutes;
 
+  if(hours < 10) hours = String('0' + hours);
+  if(minutes < 10) minutes = String('0' + minutes);
   document.getElementById('real-time').textContent= hours + ':' + minutes;
   if(now>=720 && now <1440){
     document.getElementById('ampm').textContent= 'PM';
