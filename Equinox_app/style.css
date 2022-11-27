@@ -192,10 +192,10 @@
     left: 0;
     position: absolute;
 }
-.background .color-option .sun-option .inner .time-local .ampm{
+.background .color-option .sun-option .inner .time-local #ampm{
     margin-right: 5px;
 }
-.background .color-option .sun-option .inner .time-local .real-time{
+.background .color-option .sun-option .inner .time-local #real-time{
     font-size: 30px;
     font-family: 'Archivo', sans-serif;
 }
