@@ -3,11 +3,12 @@
 #include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <FS.h>
+#include <math.h>
 
 //ESP8266WebServer server;
 //WebSocketsServer webSocket = WebSocketsServer(81);
 #define LED_PIN  D2
-#define LED_PIN2 D4
+#define LED_PIN2 D3
 #define CLK D5
 #define DT D6
 #define SW D7
@@ -21,13 +22,13 @@ uint16_t greenValue[2];
 uint16_t blueValue[2];
 int serverTime = 0;
 
-
 int counter = 0;           // 회전 카운터 측정용 변수
 int currentStateCLK;       // CLK의 현재 신호상태 저장용 변수
 int lastStateCLK;          // 직전 CLK의 신호상태 저장용 변수
 String currentDir = "";     // 현재 회전 방향 출력용 문자열 저장 변수
 unsigned long lastButtonPress = 0;     // 버튼 눌림 상태 확인용 변수
 int btnState = 0;
+int temp = 6600;
 
 Adafruit_NeoPixel strip_top(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip_bottom(LED_COUNT, LED_PIN2, NEO_GRB + NEO_KHZ800);
@@ -111,11 +112,14 @@ void loop() {
     Serial.print(", ");
     Serial.println(brightness);
   }
-  if (LED_mode == 2 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시 red
+
+  if (LED_mode == 2 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시
     // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
     if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      red += 10;                         // 카운팅 용 숫자 1 증가
-      if (red > 254) red = 255;
+      if (temp >= 6600) temp += 400;
+      else temp += 200;                           // 카운팅 용 숫자 1 증가
+      if (temp > 11000) temp = 11000;
+      kelvinToRGB(temp);
       strip_top.setBrightness(brightness);
       strip_bottom.setBrightness(brightness);
       for (int i = 0; i < LED_COUNT; i++) {
@@ -126,8 +130,10 @@ void loop() {
       strip_bottom.show();
 
     } else {                                 //반시계방향 회전
-      red -= 10;                        // 카운팅 용 숫자 1 감소
-      if (red < 1) red = 0;
+      if (temp >= 6600) temp -= 400;
+      else temp -= 200;                         // 카운팅 용 숫자 1 감소
+      if (temp < 700) temp = 700;
+      kelvinToRGB(temp);
       strip_top.setBrightness(brightness);
       strip_bottom.setBrightness(brightness);
       for (int i = 0; i < LED_COUNT; i++) {
@@ -137,93 +143,10 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
-    Serial.print(red);
-    Serial.print(", ");
-    Serial.print(green);
-    Serial.print(", ");
-    Serial.print(blue);
+    Serial.print(temp);
     Serial.print(", ");
     Serial.println(brightness);
   }
-
-  if (LED_mode == 3 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시 green
-    // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
-    if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      green += 10;                         // 카운팅 용 숫자 1 증가
-      if (green > 254) green = 255;
-      strip_top.begin();
-      strip_bottom.begin();
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
-
-    } else {                                 //반시계방향 회전
-      green -= 10;                        // 카운팅 용 숫자 1 감소
-      if (green < 1) green = 0;
-      strip_top.begin();
-      strip_bottom.begin();
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
-    }
-    Serial.print(red);
-    Serial.print(", ");
-    Serial.print(green);
-    Serial.print(", ");
-    Serial.print(blue);
-    Serial.print(", ");
-    Serial.println(brightness);
-  }
-  if (LED_mode == 4 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시 blue
-    // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
-    if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      blue += 10;                         // 카운팅 용 숫자 1 증가
-      if (blue > 254) blue = 255;
-      strip_top.begin();
-      strip_bottom.begin();
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
-
-    } else {                                 //반시계방향 회전
-      blue -= 10;                        // 카운팅 용 숫자 1 감소
-      if (blue < 1) blue = 0;
-      strip_top.begin();
-      strip_bottom.begin();
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
-    }
-    Serial.print(red);
-    Serial.print(", ");
-    Serial.print(green);
-    Serial.print(", ");
-    Serial.print(blue);
-    Serial.print(", ");
-    Serial.println(brightness);
-  }
-
-
   // 현재의 CLK상태를 저장
   lastStateCLK = currentStateCLK;
 
@@ -232,7 +155,7 @@ void loop() {
     //버튼이 눌린지 50ms가 지났는지 확인, 즉 버튼이 한번 눌린 후 최소 50 ms는 지나야 버튼이 다시 눌린것으로 감지
     if (millis() - lastButtonPress > 50) {  // 50ms 이상 지났다면
       LED_mode++;
-      if (LED_mode > 4) LED_mode = 1;
+      if (LED_mode > 2) LED_mode = 1;
       Serial.println(LED_mode);
     }
 
@@ -250,6 +173,42 @@ void loop() {
   //    webSocket.broadcastTXT(c, sizeof(c));
   //  }
 
+}
+
+void kelvinToRGB(int Temperature) {
+  Temperature = Temperature / 100;
+
+  if (Temperature <= 66) red = 255;
+  else {
+    red = Temperature - 60;
+    red = int(329.698727446 * pow(red, -0.1332047592));
+    if (red < 0) red = 0;
+    if (red > 255) red = 255;
+  }
+
+  if (Temperature <= 66) {
+    green = Temperature;
+    green = int(99.4708025861 * log(green) - 161.1195681661);
+    if (green < 0) green = 0;
+    if (green > 255) green = 255;
+  }
+  else {
+    green = Temperature - 60;
+    green = int(288.1221695283 * pow(green, -0.0755148492));
+    if (green < 0) green = 0;
+    if (green > 255) green = 255;
+  }
+
+  if (Temperature >= 66) blue = 255;
+  else {
+    if (Temperature <= 19) blue = 0;
+    else {
+      blue = Temperature - 10;
+      blue = int(138.5177312231 * log(blue) - 305.0447927307);
+      if (blue < 0) blue = 0;
+      if (blue > 255)  blue = 255;
+    }
+  }
 }
 
 //void sunPos(int deg) {
