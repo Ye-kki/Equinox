@@ -1,18 +1,3 @@
-var xhr = new XMLHttpRequest();
-var url = 'http://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getAreaRiseSetInfo'; /*URL*/
-var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'sz%2BT0LU2UAtWcd3lRFWm8FX1EhVcy51Dd77mxJe%2FxyaZdi4uKvJzBg12sZm3dlpsl9p6soutm8O13bdAKeamFQ%3D%3D'; /*Service Key*/
-queryParams += '&' + encodeURIComponent('locdate') + '=' + encodeURIComponent('20150101'); /**/
-queryParams += '&' + encodeURIComponent('location') + '=' + encodeURIComponent('서울'); /**/
-xhr.open('GET', url + queryParams);
-xhr.onreadystatechange = function () {
-    if (this.readyState == 4) {
-        alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
-    }
-};
-
-xhr.send('');
-
-
 var colorPicker = new iro.ColorPicker(".colorPicker", {
   width: 280,
   sliderSize: 10,
