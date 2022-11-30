@@ -7,20 +7,20 @@ function kelvinToRGB(Temperature) {
   if(Temperature <= 66) Red = 255;
   else {
     Red = Temperature - 60;
-    Red = 329.698727446 * (Red ** -0.1332047592);
+    Red = parseInt(329.698727446 * (Red ** -0.1332047592));
     if (Red < 0) Red = 0;
     if (Red > 255) Red = 255;
   }
 
   if (Temperature <= 66){
     Green = Temperature;
-    Green = 99.4708025861 * Math.log(Green) - 161.1195681661;
+    Green = parseInt(99.4708025861 * Math.log(Green) - 161.1195681661);
     if (Green < 0) Green = 0;
     if (Green > 255) Green = 255;
   }
   else {
     Green = Temperature - 60;
-    Green = 288.1221695283 * (Green ** -0.0755148492);
+    Green = parseInt(288.1221695283 * (Green ** -0.0755148492));
     if (Green < 0) Green = 0;
     if (Green > 255) Green = 255;
   }
@@ -30,7 +30,7 @@ function kelvinToRGB(Temperature) {
     if (Temperature <= 19) Blue = 0;
     else {
       Blue = Temperature - 10;
-      Blue = 138.5177312231 * Math.log(Blue) - 305.0447927307;
+      Blue = parseInt(138.5177312231 * Math.log(Blue) - 305.0447927307);
       if (Blue < 0) Blue = 0;
       if (Blue > 255)  Blue = 255;
     }
@@ -74,10 +74,10 @@ const blurCircle = document.querySelector(".blur-circle");
 const lightCircle = document.querySelector(".light-circle");
 
 kelvin.on(["color:init", "color:change"], function (color) {
-    // console.log('K' + parseInt(color.kelvin));
     kelvinToRGB(color.kelvin);
-    console.log(parseInt(Red),parseInt(Green),parseInt(Blue));
-
+    let rgb = String(Red) + String(Green) + String(Blue);
+    console.log('K' + rgb);
+    // Socket.send('K' + rgbHex);
     gsap.to(background, 0.7, {
       background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
     });
@@ -91,6 +91,7 @@ kelvin.on(["color:init", "color:change"], function (color) {
 
 value.on(["color:init", "color:change"], function (color1) {
     console.log('B' + parseInt(color1.value/100*255));
+    // Socket.send('B' + parseInt(color1.value/100*255));
     brightness = color1.value;
     gsap.to(background, 0.7, {
       background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
@@ -198,7 +199,6 @@ function update() {
   hours = time.getHours(); // 시
   minutes = time.getMinutes();  // 분
   now = hours*60 + minutes;
-  console.log(1);
   context.clearRect(0, 0, canvas.width, canvas.height);
 
   if(hours < 10) hours = String('0' + hours);
@@ -216,8 +216,10 @@ function update() {
     currentDegree =(now - sunsetMin)/(1440-sunsetMin) * 90;
   }
   else {
-    currentDegree = now/sunriseMin * 90;
+    currentDegree = 90 + now/sunriseMin * 90;
   }
+  console.log('D' + parseInt(currentDegree));
+  // Socket.send('D' + parseInt(currentDegree));
   drawSun();
 }
 
@@ -240,4 +242,10 @@ function drawSun() {
 
 function deg2Rad(degree) {
   return Math.PI / 180 * degree; 
+}
+
+var Socket;
+
+function init() {
+  Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
 }

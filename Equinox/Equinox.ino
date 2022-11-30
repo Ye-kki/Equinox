@@ -4,19 +4,17 @@
 #include <WebSocketsServer.h>
 #include <FS.h>
 
-#define LED_COUNT 43
-
 //ESP8266WebServer server;
 //WebSocketsServer webSocket = WebSocketsServer(81);
+#define LED_PIN  D2
+#define LED_PIN2 D4
+#define CLK D5
+#define DT D6
+#define SW D7
+#define LED_COUNT 43
 
-uint8_t LED_PIN = D2;
-uint8_t LED_PIN2 = D3;
-uint8_t CLK = D4;
-uint8_t DT = D5;
-uint8_t SW = D6;
-
-uint16_t red = 0 , green = 0, blue = 0;
-uint16_t brightness = 0;
+int red = 0 , green = 0, blue = 0;
+int brightness = 0;
 int LED_mode = 1;
 uint16_t redValue[2];
 uint16_t greenValue[2];
@@ -55,10 +53,12 @@ void setup() {
   //
   //  Serial.println("HTTP server started");
   //  serverTime = millis();
-
+  Serial.begin(9600);
   strip_top.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  strip_top.setBrightness(0);
   strip_top.show();            // Turn OFF all pixels ASAP
   strip_bottom.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  strip_bottom.setBrightness(0);
   strip_bottom.show();
 
   // 엔코더의 핀들을 입력으로 설정
@@ -80,33 +80,42 @@ void loop() {
   if (LED_mode == 1 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시
     // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
     if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      brightness++;                           // 카운팅 용 숫자 1 증가
+      brightness += 10;                           // 카운팅 용 숫자 1 증가
       if (brightness > 254) brightness = 255;
-      strip_top.begin();
-      strip_bottom.begin();
       strip_top.setBrightness(brightness);
       strip_bottom.setBrightness(brightness);
+      for (int i = 0; i < LED_COUNT; i++) {
+        strip_top.setPixelColor(i, red, green, blue);
+        strip_bottom.setPixelColor(i, red, green, blue);
+      }
       strip_top.show();
       strip_bottom.show();
 
     } else {                                 //반시계방향 회전
-      brightness--;                         // 카운팅 용 숫자 1 감소
+      brightness -= 10;                       // 카운팅 용 숫자 1 감소
       if (brightness < 1) brightness = 0;
-      strip_top.begin();
-      strip_bottom.begin();
       strip_top.setBrightness(brightness);
       strip_bottom.setBrightness(brightness);
+      for (int i = 0; i < LED_COUNT; i++) {
+        strip_top.setPixelColor(i, red, green, blue);
+        strip_bottom.setPixelColor(i, red, green, blue);
+      }
       strip_top.show();
       strip_bottom.show();
     }
+    Serial.print(red);
+    Serial.print(", ");
+    Serial.print(green);
+    Serial.print(", ");
+    Serial.print(blue);
+    Serial.print(", ");
+    Serial.println(brightness);
   }
   if (LED_mode == 2 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시 red
     // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
     if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      red++;                           // 카운팅 용 숫자 1 증가
+      red += 10;                         // 카운팅 용 숫자 1 증가
       if (red > 254) red = 255;
-      strip_top.begin();
-      strip_bottom.begin();
       strip_top.setBrightness(brightness);
       strip_bottom.setBrightness(brightness);
       for (int i = 0; i < LED_COUNT; i++) {
@@ -117,10 +126,8 @@ void loop() {
       strip_bottom.show();
 
     } else {                                 //반시계방향 회전
-      red --;                         // 카운팅 용 숫자 1 감소
+      red -= 10;                        // 카운팅 용 숫자 1 감소
       if (red < 1) red = 0;
-      strip_top.begin();
-      strip_bottom.begin();
       strip_top.setBrightness(brightness);
       strip_bottom.setBrightness(brightness);
       for (int i = 0; i < LED_COUNT; i++) {
@@ -130,12 +137,19 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
+    Serial.print(red);
+    Serial.print(", ");
+    Serial.print(green);
+    Serial.print(", ");
+    Serial.print(blue);
+    Serial.print(", ");
+    Serial.println(brightness);
   }
 
   if (LED_mode == 3 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시 green
     // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
     if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      green++;                           // 카운팅 용 숫자 1 증가
+      green += 10;                         // 카운팅 용 숫자 1 증가
       if (green > 254) green = 255;
       strip_top.begin();
       strip_bottom.begin();
@@ -149,7 +163,7 @@ void loop() {
       strip_bottom.show();
 
     } else {                                 //반시계방향 회전
-      green --;                         // 카운팅 용 숫자 1 감소
+      green -= 10;                        // 카운팅 용 숫자 1 감소
       if (green < 1) green = 0;
       strip_top.begin();
       strip_bottom.begin();
@@ -162,11 +176,18 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
+    Serial.print(red);
+    Serial.print(", ");
+    Serial.print(green);
+    Serial.print(", ");
+    Serial.print(blue);
+    Serial.print(", ");
+    Serial.println(brightness);
   }
   if (LED_mode == 4 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) { //회전시 blue
     // DT핀의 신호를 확인해서 엔코더의 회전 방향을 확인함.
     if (digitalRead(DT) != currentStateCLK) {  //시계방향 회전
-      blue++;                           // 카운팅 용 숫자 1 증가
+      blue += 10;                         // 카운팅 용 숫자 1 증가
       if (blue > 254) blue = 255;
       strip_top.begin();
       strip_bottom.begin();
@@ -180,7 +201,7 @@ void loop() {
       strip_bottom.show();
 
     } else {                                 //반시계방향 회전
-      blue --;                         // 카운팅 용 숫자 1 감소
+      blue -= 10;                        // 카운팅 용 숫자 1 감소
       if (blue < 1) blue = 0;
       strip_top.begin();
       strip_bottom.begin();
@@ -193,6 +214,13 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
+    Serial.print(red);
+    Serial.print(", ");
+    Serial.print(green);
+    Serial.print(", ");
+    Serial.print(blue);
+    Serial.print(", ");
+    Serial.println(brightness);
   }
 
 
@@ -204,7 +232,8 @@ void loop() {
     //버튼이 눌린지 50ms가 지났는지 확인, 즉 버튼이 한번 눌린 후 최소 50 ms는 지나야 버튼이 다시 눌린것으로 감지
     if (millis() - lastButtonPress > 50) {  // 50ms 이상 지났다면
       LED_mode++;
-      if (LED_mode > 5) LED_mode = 1;
+      if (LED_mode > 4) LED_mode = 1;
+      Serial.println(LED_mode);
     }
 
     // 마자막 버튼이 눌린 시간 저장
@@ -212,7 +241,7 @@ void loop() {
   }
 
   // 잠시 대기
-  delay(50);
+  delay(1);
 
 
   //  server.handleClient();
@@ -223,6 +252,12 @@ void loop() {
 
 }
 
+//void sunPos(int deg) {
+//  int ledPos;
+//  if (deg >= 180 && deg < 360) ledPos = int(float(360 - deg) / 180 * 45) - 1;
+//  else ledPos = int(float(deg) / 180 * 45) - 1;
+//
+//}
 
 //
 //void handleRoot() {
