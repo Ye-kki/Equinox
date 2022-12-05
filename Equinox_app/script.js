@@ -144,18 +144,31 @@ rightBtn.addEventListener('click', function () {
   gsap.to(sun, 0, {
     display: "block",
   });
+  update();
   clearInterval(sunLoop);
-  sunLoop = setInterval(update, 5*1000);
+  sunLoop = setInterval(update, 60*1000);
 });
 
-let time, year, month, date, hours, minutes, today
-let sunrise, sunset, sunriseMin, sunsetMin;
+let time, year, month, date, hours, minutes, today;
+let sunrise=0, sunset=0, sunriseMin, sunsetMin;
 let now;
+
+window.onload = () => {
+  time = new Date();
+  year = time.getFullYear(); // 년도
+  month = time.getMonth() + 1;  // 월
+  date = time.getDate();  // 날짜
+  if(month < 10) month = String('0' + month);
+  if(date < 10) date = String('0' + date);
+  today = String(year) + String(month) + String(date);
+  sunRequest();
+  setInterval(sunRequest, 600*1000);
+}
 
 function sunRequest (){
   var xhr = new XMLHttpRequest();
   var url = 'http://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getAreaRiseSetInfo'; /*URL*/
-  var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'sz%2BT0LU2UAtWcd3lRFWm8FX1EhVcy51Dd77mxJe%2FxyaZdi4uKvJzBg12sZm3dlpsl9p6soutm8O13bdAKeamFQ%3D%3D'; /*Service Key*/
+  var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'VTFhDsOqym7hhhLzM7libBE5cz%2FhhxSRzr347qPOH4lEWCurspAftgFk2co5enlAzrFM45llt0jhce9ogU8vfQ%3D%3D'; /*Service Key*/
   queryParams += '&' + encodeURIComponent('locdate') + '=' + encodeURIComponent(today); /**/
   queryParams += '&' + encodeURIComponent('location') + '=' + encodeURIComponent('서울'); /**/
   xhr.open('GET', url + queryParams);
@@ -165,25 +178,15 @@ function sunRequest (){
           let xmlParser = new DOMParser();
           let xmlDoc = xmlParser.parseFromString(xhr.responseText, "text/xml"); // parseFromString() 메소드를 이용해 문자열을 파싱함. 
           sunrise = xmlDoc.getElementsByTagName("sunrise")[0].textContent; 
-          sunset = xmlDoc.getElementsByTagName("sunset")[0].textContent; 
+          sunset = xmlDoc.getElementsByTagName("sunset")[0].textContent;
           sunriseMin = (parseInt(sunrise[0]*10) + parseInt(sunrise[1])) * 60 + parseInt(sunrise[2]*10) + parseInt(sunrise[3]);
           sunsetMin = (parseInt(sunset[0]*10) + parseInt(sunset[1])) * 60 + parseInt(sunset[2]*10) + parseInt(sunset[3]);
           document.getElementById('sunrise-time').textContent= "AM " + sunrise[0] + sunrise[1] + ':' + sunrise[2] + sunrise[3];
           document.getElementById('sunset-time').textContent= "PM " + sunset[0] + sunset[1] + ':' + sunset[2] + sunset[3];
+          update();
         }
   };
   xhr.send('');
-}
-
-window.onload = () => {
-  time = new Date();
-  year = time.getFullYear(); // 년도
-  month = time.getMonth() + 1;  // 월
-  date = time.getDate();  // 날짜
-  today = String(year) + String(month) + String(date);
-  sunRequest();
-  update();
-  setInterval(sunRequest, 600*1000);
 }
 
 const canvas = document.getElementById('sun');
