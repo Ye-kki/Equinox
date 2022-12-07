@@ -50,7 +50,7 @@
     position: absolute;
     margin: auto;
     mix-blend-mode: normal;
-    border: 40px solid rgba(255, 210, 210, 0.9);
+    border: 40px solid rgba(255, 255, 255, 0.9);
     filter: blur(15px);
     border-radius: 169px;
     box-sizing: border-box;
@@ -92,7 +92,7 @@
     height: 308px;
     position: absolute;
     margin: auto;
-    border: 5px solid #FFD2D2;
+    border: 5px solid #ffffff;
     filter: blur(3px);
     border-radius: 154px;
     box-sizing: border-box;

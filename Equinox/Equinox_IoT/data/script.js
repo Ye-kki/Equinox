@@ -1,5 +1,10 @@
-let Red, Green, Blue;
+let Red = 255, Green= 255, Blue= 255;
+let RedSend = 255, GreenSend= 255, BlueSend= 255;
 let brightness;
+var Socket;
+let rgb = Red*1000000 + Green*1000 + Blue;
+Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+
 
 function kelvinToRGB(Temperature) {
   Temperature = Temperature / 100
@@ -33,6 +38,41 @@ function kelvinToRGB(Temperature) {
       Blue = parseInt(138.5177312231 * Math.log(Blue) - 305.0447927307);
       if (Blue < 0) Blue = 0;
       if (Blue > 255)  Blue = 255;
+    }
+  }
+}
+function kelvinToRGBToSend(Temperature) {
+  Temperature = Temperature / 100
+
+  if(Temperature <= 66) RedSend = 255;
+  else {
+    RedSend = Temperature - 60;
+    RedSend = parseInt(329.698727446 * (RedSend ** -0.1332047592));
+    if (RedSend < 0) RedSend = 0;
+    if (RedSend > 255) RedSend = 255;
+  }
+
+  if (Temperature <= 66){
+    GreenSend = Temperature;
+    GreenSend = parseInt(99.4708025861 * Math.log(GreenSend) - 161.1195681661);
+    if (GreenSend < 0) GreenSend = 0;
+    if (GreenSend > 255) GreenSend = 255;
+  }
+  else {
+    GreenSend = Temperature - 60;
+    GreenSend = parseInt(288.1221695283 * (GreenSend ** -0.0755148492));
+    if (GreenSend < 0) GreenSend = 0;
+    if (GreenSend > 255) GreenSend = 255;
+  }
+
+  if (Temperature >= 66) BlueSend = 255;
+  else {
+    if (Temperature <= 19) BlueSend = 0;
+    else {
+      BlueSend = Temperature - 10;
+      BlueSend = parseInt(138.5177312231 * Math.log(BlueSend) - 305.0447927307);
+      if (BlueSend < 0) BlueSend = 0;
+      if (BlueSend > 255)  BlueSend = 255;
     }
   }
 }
@@ -73,11 +113,8 @@ const background = document.querySelector(".background");
 const blurCircle = document.querySelector(".blur-circle");
 const lightCircle = document.querySelector(".light-circle");
 
-kelvin.on(["color:init", "color:change"], function (color) {
+kelvin.on(["color:init"], function (color) {
     kelvinToRGB(color.kelvin);
-    let rgb = String(Red) + String(Green) + String(Blue);
-    console.log('K' + rgb);
-    // Socket.send('K' + rgbHex);
     gsap.to(background, 0.7, {
       background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
     });
@@ -87,11 +124,27 @@ kelvin.on(["color:init", "color:change"], function (color) {
     gsap.to(lightCircle, 0.7, {
       border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
     });
+    kelvinToRGBToSend(((color.kelvin - 11000)/88*103)+11000);
+    rgb = RedSend*1000000 + GreenSend*1000 + BlueSend;
 });
 
-value.on(["color:init", "color:change"], function (color1) {
-    console.log('B' + parseInt(color1.value/100*255));
-    // Socket.send('B' + parseInt(color1.value/100*255));
+kelvin.on(["color:change"], function (color) {
+  kelvinToRGB(color.kelvin);
+  gsap.to(background, 0.7, {
+    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+  });
+  gsap.to(blurCircle, 0.7, {
+    border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+  });
+  gsap.to(lightCircle, 0.7, {
+    border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+  });
+  kelvinToRGBToSend(((color.kelvin - 11000)/88*103)+11000);
+  rgb = RedSend*1000000 + GreenSend*1000 + BlueSend;
+  Socket.send('K' + rgb);
+});
+
+value.on(["color:init"], function (color1) {
     brightness = color1.value;
     gsap.to(background, 0.7, {
       background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
@@ -102,6 +155,19 @@ value.on(["color:init", "color:change"], function (color1) {
     gsap.to(lightCircle, 0.7, {
       border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
     });
+});
+value.on(["color:change"], function (color1) {
+  brightness = color1.value;
+  gsap.to(background, 0.7, {
+    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+  });
+  gsap.to(blurCircle, 0.7, {
+    border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+  });
+  gsap.to(lightCircle, 0.7, {
+    border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+  });
+  Socket.send('B' + parseInt(color1.value/100*255+1000));
 });
 
 const leftBtn = document.querySelector(".left-btn");
@@ -126,6 +192,7 @@ leftBtn.addEventListener('click', function () {
     display: "none",
   });
   clearInterval(sunLoop);
+  Socket.send('K' + rgb);
 });
 
 rightBtn.addEventListener('click', function () {
@@ -158,9 +225,7 @@ window.onload = () => {
   year = time.getFullYear(); // 년도
   month = time.getMonth() + 1;  // 월
   date = time.getDate();  // 날짜
-  if(month < 10) month = String('0' + month);
-  if(date < 10) date = String('0' + date);
-  today = String(year) + String(month) + String(date);
+  today = String(year*10000 + month*100 + date);
   sunRequest();
   setInterval(sunRequest, 600*1000);
 }
@@ -221,8 +286,7 @@ function update() {
   else {
     currentDegree = 90 + now/sunriseMin * 90;
   }
-  console.log('D' + parseInt(currentDegree));
-  // Socket.send('D' + parseInt(currentDegree));
+  Socket.send('D' + parseInt(currentDegree+1000));
   drawSun();
 }
 
@@ -245,10 +309,4 @@ function drawSun() {
 
 function deg2Rad(degree) {
   return Math.PI / 180 * degree; 
-}
-
-var Socket;
-
-function init() {
-  Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
 }

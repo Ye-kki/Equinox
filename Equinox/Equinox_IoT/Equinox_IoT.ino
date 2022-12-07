@@ -8,6 +8,7 @@
 
 ESP8266WebServer server;
 WebSocketsServer webSocket = WebSocketsServer(81);
+
 #define LED_PIN  D2
 #define LED_PIN2 D3
 #define CLK D5
@@ -15,12 +16,9 @@ WebSocketsServer webSocket = WebSocketsServer(81);
 #define SW D7
 #define LED_COUNT 43
 
-int red = 0 , green = 0, blue = 0;
-int brightness = 0;
+int red = 255 , green = 255, blue = 255;
+int brightness = 255;
 int LED_mode = 1;
-uint16_t redValue[2];
-uint16_t greenValue[2];
-uint16_t blueValue[2];
 bool wifiAccess = false;
 int serverTime = 0;
 
@@ -39,12 +37,27 @@ void setup() {
   Serial.begin(115200);
   WiFi.begin("Yekki6264", "123123123");
   SPIFFS.begin();
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected, IP address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/" , handleRoot);
+  server.onNotFound(handleWebRequests);
+  server.begin();
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
+
+  Serial.println("HTTP server started");
+  serverTime = millis();
 
   strip_top.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip_top.setBrightness(0);
   strip_top.show();            // Turn OFF all pixels ASAP
   strip_bottom.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip_bottom.setBrightness(0);
   strip_bottom.show();
 
   // 엔코더의 핀들을 입력으로 설정
@@ -57,27 +70,26 @@ void setup() {
 }
 
 void loop() {
-  while (!wifiAccess) {
-    delay(500);
-    Serial.print(".");
-    if (WiFi.status() == WL_CONNECTED) {
-      wifiAccess = true;
-      Serial.println();
-      Serial.print("Connected, IP address: ");
-      Serial.println(WiFi.localIP());
-
-      server.on("/" , handleRoot);
-      server.onNotFound(handleWebRequests);
-      server.begin();
-      webSocket.begin();
-      webSocket.onEvent(webSocketEvent);
-
-      Serial.println("HTTP server started");
-      serverTime = millis();
-      break;
-    }
-  }
-
+  //  while (!wifiAccess) {
+  //    delay(500);
+  //    Serial.print(".");
+  //    if (WiFi.status() == WL_CONNECTED) {
+  //      wifiAccess = true;
+  //      Serial.println();
+  //      Serial.print("Connected, IP address: ");
+  //      Serial.println(WiFi.localIP());
+  //
+  //      server.on("/" , handleRoot);
+  //      server.onNotFound(handleWebRequests);
+  //      server.begin();
+  //      webSocket.begin();
+  //      webSocket.onEvent(webSocketEvent);
+  //
+  //      Serial.println("HTTP server started");
+  //      serverTime = millis();
+  //      break;
+  //    }
+  //  }
   webSocket.loop();
 
   currentStateCLK = digitalRead(CLK);
@@ -94,7 +106,6 @@ void loop() {
       }
       strip_top.show();
       strip_bottom.show();
-
     }
     else {
       brightness -= 10;
@@ -108,6 +119,9 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
+    Serial.println(brightness);
+    Serial.println(digitalRead(DT));
+    Serial.println(currentStateCLK);
   }
 
   if (LED_mode == 2 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) {
@@ -140,6 +154,7 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
+    Serial.println(temp);
   }
   lastStateCLK = currentStateCLK;
 
@@ -193,6 +208,7 @@ void kelvinToRGB(int Temperature) {
       if (blue > 255)  blue = 255;
     }
   }
+  delay(20);
 }
 
 void handleRoot() {
@@ -239,73 +255,84 @@ bool loadFromSpiffs(String path) { // SPIFFS 에서 파일 확인
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {   //웹소켓에서 받는 신호
   if (type == WStype_TEXT) {
-    Serial.println(payload);
-    int num = stingToInt(payload);
-    if (payload[0] == 'K') { //온도
-      kelvinToRGB(num);
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
+    stingToInt(payload);
+  }
+}
+
+void stingToInt(uint8_t* s) {
+  int num = 0;
+  if (s[0] == 'K') { //온도
+    for (int i = 1; i <= 9; i++) num = num * 10 + (s[i] - '0');
+    red = num / 1000000;
+    green = (num % 1000000) / 1000;
+    blue = (num % 1000);
+    strip_top.setBrightness(brightness);
+    strip_bottom.setBrightness(brightness);
+    for (int i = 0; i < LED_COUNT; i++) {
+      strip_top.setPixelColor(i, red, green, blue);
+      strip_bottom.setPixelColor(i, red, green, blue);
+    }
+    strip_top.show();
+    strip_bottom.show();
+  }
+  else if (s[0] == 'B') {
+    for (int i = 2; i <= 4; i++) num = num * 10 + (s[i] - '0');
+    brightness = num;
+    strip_top.setBrightness(brightness);
+    strip_bottom.setBrightness(brightness);
+    for (int i = 0; i < LED_COUNT; i++) {
+      strip_top.setPixelColor(i, red, green, blue);
+      strip_bottom.setPixelColor(i, red, green, blue);
+    }
+    strip_top.show();
+    strip_bottom.show();
+  }
+  else if (s[0] == 'D') {
+    strip_top.setBrightness(0);
+    strip_bottom.setBrightness(0);
+    strip_top.show();
+    strip_bottom.show();
+    for (int i = 2; i <= 4; i++) num = num * 10 + (s[i] - '0');
+    if (num > 188 && num < 353) {
+      strip_top.setBrightness(255);
+      strip_top.setPixelColor(sunPos(num) - 1, 200, 100, 0);
+      strip_top.setPixelColor(sunPos(num), 255, 146, 38);
+      strip_top.setPixelColor(sunPos(num) + 1, 200, 100, 0);
+      strip_top.show();
+    }
+    else if (num > 7 && num < 172) {
+      strip_bottom.setBrightness(255);
+      strip_bottom.setPixelColor(sunPos(num) - 1, 200, 100, 0);
+      strip_bottom.setPixelColor(sunPos(num), 255, 146, 38);
+      strip_bottom.setPixelColor(sunPos(num) + 1, 200, 100, 0);
+      strip_bottom.show();
+    }
+    else if (num >= 172 && num <= 188) {
+      strip_top.setBrightness(255);
+      strip_bottom.setBrightness(255);
+      strip_top.setPixelColor(41, 200, 100, 0);
+      strip_top.setPixelColor(42, 255, 146, 38);
+      strip_bottom.setPixelColor(42, 255, 146, 38);
+      strip_top.setPixelColor(41, 200, 100, 0);
       strip_top.show();
       strip_bottom.show();
     }
-    else if (payload[0] == 'B') {
-      brightness = num;
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
+    else {
+      strip_top.setBrightness(255);
+      strip_bottom.setBrightness(255);
+      strip_top.setPixelColor(1, 200, 100, 0);
+      strip_top.setPixelColor(0, 255, 146, 38);
+      strip_bottom.setPixelColor(0, 255, 146, 38);
+      strip_top.setPixelColor(1, 200, 100, 0);
       strip_top.show();
       strip_bottom.show();
-    }
-    else if (payload[0] == 'D') {
-      if (num > 188 && num < 353) {
-        strip_top.setBrightness(255);
-        strip_top.setPixelColor(sunPos(num) - 1, 200, 100, 0);
-        strip_top.setPixelColor(sunPos(num), 255, 146, 38);
-        strip_top.setPixelColor(sunPos(num) + 1, 200, 100, 0);
-        strip_top.show();
-      }
-      else if (num > 7 && num < 172) {
-        strip_bottom.setBrightness(255);
-        strip_bottom.setPixelColor(sunPos(num) - 1, 200, 100, 0);
-        strip_bottom.setPixelColor(sunPos(num), 255, 146, 38);
-        strip_bottom.setPixelColor(sunPos(num) + 1, 200, 100, 0);
-        strip_bottom.show();
-      }
-      else if (num >= 172 && num <= 188) {
-        strip_top.setBrightness(255);
-        strip_bottom.setBrightness(255);
-        strip_top.setPixelColor(41, 200, 100, 0);
-        strip_top.setPixelColor(42, 255, 146, 38);
-        strip_bottom.setPixelColor(42, 255, 146, 38);
-        strip_top.setPixelColor(41, 200, 100, 0);
-        strip_top.show();
-        strip_bottom.show();
-      }
-      else {
-        strip_top.setBrightness(255);
-        strip_bottom.setBrightness(255);
-        strip_top.setPixelColor(1, 200, 100, 0);
-        strip_top.setPixelColor(0, 255, 146, 38);
-        strip_bottom.setPixelColor(0, 255, 146, 38);
-        strip_top.setPixelColor(1, 200, 100, 0);
-        strip_top.show();
-        strip_bottom.show();
-      }
     }
   }
 }
 
-int stingToInt(uint8_t* s) {
-  int ret = 0;
-  for (int i = 1; i < s.strlen(); i++) ret = ret * 10 + (s[i] - '0');
-  return ret;
-}
-
-void sunPos(int deg) {
+int sunPos(int deg) {
   int ledPos;
   if (deg >= 180 && deg < 360) ledPos = int(float(360 - deg) / 180 * 45) - 1;
   else ledPos = int(float(deg) / 180 * 45) - 1;
+  return ledPos;
 }
