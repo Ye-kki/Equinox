@@ -1,6 +1,7 @@
 let Red = 255, Green= 255, Blue= 255;
 let RedSend = 255, GreenSend= 255, BlueSend= 255;
 let brightness;
+let temp;
 var Socket;
 let rgb = Red*1000000 + Green*1000 + Blue;
 Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
@@ -114,6 +115,7 @@ const blurCircle = document.querySelector(".blur-circle");
 const lightCircle = document.querySelector(".light-circle");
 
 kelvin.on(["color:init"], function (color) {
+    temp = color.kelvin;
     kelvinToRGB(color.kelvin);
     gsap.to(background, 0.7, {
       background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
@@ -129,19 +131,24 @@ kelvin.on(["color:init"], function (color) {
 });
 
 kelvin.on(["color:change"], function (color) {
+  temp = color.kelvin;
   kelvinToRGB(color.kelvin);
-  gsap.to(background, 0.7, {
-    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
-  });
-  gsap.to(blurCircle, 0.7, {
-    border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
-  });
-  gsap.to(lightCircle, 0.7, {
-    border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
-  });
+  if(onoff){
+    gsap.to(background, 0.7, {
+      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+    });
+    gsap.to(blurCircle, 0.7, {
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+    });
+    gsap.to(lightCircle, 0.7, {
+      border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+    });
+  }
   kelvinToRGBToSend(((color.kelvin - 11000)/88*103)+11000);
   rgb = RedSend*1000000 + GreenSend*1000 + BlueSend;
-  Socket.send('K' + rgb+parseInt(((color.kelvin - 11000)/88*103)+111008));
+  if(onoff) {
+    Socket.send('K' + rgb+parseInt(((color.kelvin - 11000)/88*103)+111008));
+  }
 });
 
 value.on(["color:init"], function (color1) {
@@ -158,41 +165,63 @@ value.on(["color:init"], function (color1) {
 });
 value.on(["color:change"], function (color1) {
   brightness = color1.value;
-  gsap.to(background, 0.7, {
-    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
-  });
-  gsap.to(blurCircle, 0.7, {
-    border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
-  });
-  gsap.to(lightCircle, 0.7, {
-    border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
-  });
-  Socket.send('B' + parseInt(color1.value/100*255+1000));
+  if(onoff){
+    gsap.to(background, 0.7, {
+      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+    });
+    gsap.to(blurCircle, 0.7, {
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+    });
+    gsap.to(lightCircle, 0.7, {
+      border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+    });
+    Socket.send('B' + parseInt(color1.value/100*255+1000));
+  }
 });
 
 const leftBtn = document.querySelector(".left-btn");
 const rightBtn = document.querySelector(".right-btn");
+const onBtn = document.querySelector(".on");
+const offBtn = document.querySelector(".off");
 const colorOption = document.querySelector(".color-option");
+const leftArrow = document.querySelector(".left-arrow");
+const rightArrow = document.querySelector(".right-arrow");
+let onoff = true;
+let rightState = false;
 let sunLoop;
 
 leftBtn.addEventListener('click', function () {
-  gsap.to(blurCircle, 0, {
-    display: "block",
+  if(onoff){
+    gsap.to(blurCircle, 0.2, {
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+      display: "block",
+    });
+    gsap.to(lightCircle, 0.2, {
+      border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+      display: "block",
+    });
+    gsap.to(background, 0, {
+      background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+    });
+  }
+  gsap.to(leftArrow, 0.2, {
+    opacity: "0.5",
   });
-  gsap.to(lightCircle, 0, {
-    display: "block",
+  gsap.to(rightArrow, 0.2, {
+    opacity: "1",
   });
   gsap.to(colorOption, 0.2, {
     right: "0",
-  });
-  gsap.to(background, 0.2, {
-    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
   });
   gsap.to(sun, 0, {
     display: "none",
   });
   clearInterval(sunLoop);
-  Socket.send('K' + rgb);
+  if(onoff && rightState) {
+    Socket.send('O' + rgb+parseInt(((temp - 11000)/88*103)+111008) + parseInt(brightness/100*255+1000));
+  }
+  else if (!onoff && rightState) Socket.send('B' + 1000);
+  rightState = false;
 });
 
 rightBtn.addEventListener('click', function () {
@@ -202,18 +231,77 @@ rightBtn.addEventListener('click', function () {
   gsap.to(lightCircle, 0, {
     display: "none",
   });
+  gsap.to(rightArrow, 0.2, {
+    opacity: "0.5",
+  });
+  gsap.to(leftArrow, 0.2, {
+    opacity: "1",
+  });
   gsap.to(colorOption, 0.2, {
     right: "100%",
   });
+  if(onoff){
   gsap.to(background, 0.2, {
     background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
   });
+  }
   gsap.to(sun, 0, {
     display: "block",
   });
+  rightState = true;
   update();
   clearInterval(sunLoop);
   sunLoop = setInterval(update, 60*1000);
+});
+
+onBtn.addEventListener('click', function () {
+  onoff = false;
+  gsap.to(blurCircle, 0.5, {
+    border: "40px solid rgba(0,0,0,0)",
+    display: "none",
+  });
+  gsap.to(lightCircle, 0.5, {
+    border: "5px solid rgba(0,0,0,0)",
+    display: "none",
+  });
+  gsap.to(background, 0.2, {
+    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(0, 0, 0, 0) 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+  });
+  gsap.to(onBtn, 0, {
+    display: "none",
+  });
+  gsap.to(offBtn, 0, {
+    display: "block",
+  });
+  clearInterval(sunLoop);
+  if(!rightState) Socket.send('O' + 0);
+});
+
+offBtn.addEventListener('click', function () {
+  onoff = true;
+  if(!rightState){
+    gsap.to(blurCircle, 0.5, {
+      border: "40px solid rgba(" + Red + ', ' + Green + ', ' + Blue + ','  + brightness/100 +")",
+      display: "block",
+    });
+    gsap.to(lightCircle, 0.5, {
+      border: "5px solid rgba(" + (Red+70) + ', ' + (Green+70) + ', ' + (Blue+70) + ',' + brightness/100 +")",
+      display: "block",
+    });
+  }
+  gsap.to(background, 0.2, {
+    background: "linear-gradient(179.99deg, rgba(0, 0, 0, 0.9) -9.21%, rgba(" + Red + ', ' + Green + ', ' + Blue + ',' + brightness/200 + ") 37%, rgba(0, 0, 0, 0.9) 76.28%)",
+  });
+  gsap.to(onBtn, 0, {
+    display: "block",
+  });
+  gsap.to(offBtn, 0, {
+    display: "none",
+  });
+  clearInterval(sunLoop);
+  if(!rightState) {
+    Socket.send('O' + rgb+parseInt(((temp - 11000)/88*103)+111008) + parseInt(brightness/100*255+1000));
+  }
 });
 
 let time, year, month, date, hours, minutes, today;

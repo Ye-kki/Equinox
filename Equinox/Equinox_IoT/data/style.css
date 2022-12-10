@@ -238,8 +238,41 @@
 .background .btn .left-btn{
     left: 0;
     position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.background .btn .left-btn .left-arrow {
+    width: 60%;
+    height: 60%;
+    opacity: 0.5;
 }
 .background .btn .right-btn{
     right: 0;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.background .btn .right-btn .right-arrow {
+    width: 60%;
+    height: 60%;
+}
+.background .btn .onoff-btn {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.background .btn .onoff-btn .on{
+    width: 80%;
+    height: 80%;
+    display: block;
+    position: absolute;
+}
+.background .btn .onoff-btn .off{
+    width: 80%;
+    height: 80%;
+    display: none;
     position: absolute;
 }
