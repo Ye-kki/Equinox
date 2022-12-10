@@ -36,6 +36,7 @@ Adafruit_NeoPixel strip_bottom(LED_COUNT, LED_PIN2, NEO_GRB + NEO_KHZ800);
 void setup() {
   Serial.begin(115200);
   WiFi.begin("Yekki6264", "123123123");
+  //  WiFi.begin("NEXT-504N_C51BC8", "123123123");
   SPIFFS.begin();
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -119,9 +120,6 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
-    Serial.println(brightness);
-    Serial.println(digitalRead(DT));
-    Serial.println(currentStateCLK);
   }
 
   if (LED_mode == 2 && currentStateCLK != lastStateCLK  && currentStateCLK == 1) {
@@ -154,7 +152,6 @@ void loop() {
       strip_top.show();
       strip_bottom.show();
     }
-    Serial.println(temp);
   }
   lastStateCLK = currentStateCLK;
 
@@ -163,7 +160,6 @@ void loop() {
   if (btnState == true && digitalRead(SW) == LOW) {
     LED_mode++;
     if (LED_mode > 2) LED_mode = 1;
-    Serial.println(LED_mode);
     btnState = false;
     delay(50);
   }
@@ -255,11 +251,11 @@ bool loadFromSpiffs(String path) { // SPIFFS 에서 파일 확인
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {   //웹소켓에서 받는 신호
   if (type == WStype_TEXT) {
-    stingToInt(payload);
+    changeMessage(payload);
   }
 }
 
-void stingToInt(uint8_t* s) {
+void changeMessage(uint8_t* s) {
   int num = 0;
   if (s[0] == 'K') { //온도
     for (int i = 1; i <= 9; i++) num = num * 10 + (s[i] - '0');
