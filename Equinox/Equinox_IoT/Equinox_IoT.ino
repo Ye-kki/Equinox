@@ -19,14 +19,9 @@ WebSocketsServer webSocket = WebSocketsServer(81);
 int red = 255 , green = 255, blue = 255;
 int brightness = 255;
 int LED_mode = 1;
-bool wifiAccess = false;
 int serverTime = 0;
-
-int counter = 0;           // 회전 카운터 측정용 변수
-int currentStateCLK;       // CLK의 현재 신호상태 저장용 변수
-int lastStateCLK;          // 직전 CLK의 신호상태 저장용 변수
-String currentDir = "";     // 현재 회전 방향 출력용 문자열 저장 변수
-unsigned long lastButtonPress = 0;     // 버튼 눌림 상태 확인용 변수
+int currentStateCLK;
+int lastStateCLK;
 bool btnState = false;
 int temp = 6600;
 
@@ -35,13 +30,11 @@ Adafruit_NeoPixel strip_bottom(LED_COUNT, LED_PIN2, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(115200);
-  //  WiFi.begin("Yekki6264", "123123123");
-  WiFi.begin("NEXT-504N_C51BC8", "123123123");
+  WiFi.begin("Yekki6264", "123123123");
   SPIFFS.begin();
-  while (WiFi.status() != WL_CONNECTED){
+  while (WiFi.status() != WL_CONNECTED && millis() < 10000) {
     delay(500);
     Serial.print(".");
-    wifiAccess = true;
   }
   Serial.println();
   Serial.print("Connected, IP address: ");
@@ -56,16 +49,13 @@ void setup() {
   Serial.println("HTTP server started");
   serverTime = millis();
 
-  strip_top.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip_bottom.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  setLed();
+  strip_top.begin();
+  strip_bottom.begin();
+  for (int i = 0; i <= brightness; i++) setLed(i);
 
-  // 엔코더의 핀들을 입력으로 설정
   pinMode(CLK, INPUT);
   pinMode(DT, INPUT);
-  pinMode(SW, INPUT_PULLUP);     // 스위치핀은 내부 풀업저항 사용
-
-  // CLK핀의 현재 상태 확인
+  pinMode(SW, INPUT_PULLUP);
   lastStateCLK = digitalRead(CLK);
 }
 
@@ -78,12 +68,12 @@ void loop() {
     if (digitalRead(DT) != currentStateCLK) {
       brightness += 10;
       if (brightness > 254) brightness = 255;
-      setLed();
+      setLed(brightness);
     }
     else {
       brightness -= 10;
       if (brightness < 1) brightness = 0;
-      setLed();
+      setLed(brightness);
     }
   }
 
@@ -93,14 +83,14 @@ void loop() {
       else temp += 200;
       if (temp > 11000) temp = 11000;
       kelvinToRGB(temp);
-      setLed();
+      setLed(brightness);
     }
     else {
       if (temp >= 6600) temp -= 400;
       else temp -= 200;
       if (temp < 700) temp = 700;
       kelvinToRGB(temp);
-      setLed();
+      setLed(brightness);
     }
   }
   lastStateCLK = currentStateCLK;
@@ -113,6 +103,7 @@ void loop() {
     btnState = false;
     delay(50);
   }
+
   server.handleClient();
   if (Serial.available() > 0) {
     char c[] = {(char)Serial.read()};
@@ -120,9 +111,9 @@ void loop() {
   }
 }
 
-void setLed() {
-  strip_top.setBrightness(brightness);
-  strip_bottom.setBrightness(brightness);
+void setLed(int bright) {
+  strip_top.setBrightness(bright);
+  strip_bottom.setBrightness(bright);
   for (int i = 0; i < LED_COUNT; i++) {
     strip_top.setPixelColor(i, red, green, blue);
     strip_bottom.setPixelColor(i, red, green, blue);
@@ -226,12 +217,32 @@ void changeMessage(uint8_t* s) {
     green = (num % 1000000) / 1000;
     blue = (num % 1000);
     temp = webTemp;
-    setLed();
+    setLed(brightness);
   }
   else if (s[0] == 'B') {
     for (int i = 2; i <= 4; i++) num = num * 10 + (s[i] - '0');
     brightness = num;
-    setLed();
+    setLed(brightness);
+  }
+  else if (s[0] == 'O') {
+    if (s[1] == '0') {
+      for (int i = brightness; i >= 0; i -= 2) {
+        if (i < 2) i = 0;
+        setLed(i);
+      }
+    }
+    else {
+      for (int i = 1; i <= 9; i++) num = num * 10 + (s[i] - '0');
+      for (int i = 11; i <= 15; i++) webTemp = webTemp * 10 + (s[i] - '0');
+      red = num / 1000000;
+      green = (num % 1000000) / 1000;
+      blue = (num % 1000);
+      temp = webTemp;
+      num = 0;
+      for (int i = 17; i <= 19; i++) num = num * 10 + (s[i] - '0');
+      brightness = num;
+      for (int i = 0; i <= num; i += 2) setLed(i);
+    }
   }
   else if (s[0] == 'D') {
     strip_top.setBrightness(0);
