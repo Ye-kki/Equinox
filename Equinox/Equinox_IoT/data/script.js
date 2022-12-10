@@ -141,7 +141,7 @@ kelvin.on(["color:change"], function (color) {
   });
   kelvinToRGBToSend(((color.kelvin - 11000)/88*103)+11000);
   rgb = RedSend*1000000 + GreenSend*1000 + BlueSend;
-  Socket.send('K' + rgb);
+  Socket.send('K' + rgb+parseInt(((color.kelvin - 11000)/88*103)+111008));
 });
 
 value.on(["color:init"], function (color1) {

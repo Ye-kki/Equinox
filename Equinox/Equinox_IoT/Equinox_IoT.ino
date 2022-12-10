@@ -35,13 +35,13 @@ Adafruit_NeoPixel strip_bottom(LED_COUNT, LED_PIN2, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(115200);
-  WiFi.begin("Yekki6264", "123123123");
-  //  WiFi.begin("NEXT-504N_C51BC8", "123123123");
+  //  WiFi.begin("Yekki6264", "123123123");
+  WiFi.begin("NEXT-504N_C51BC8", "123123123");
   SPIFFS.begin();
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED){
     delay(500);
     Serial.print(".");
+    wifiAccess = true;
   }
   Serial.println();
   Serial.print("Connected, IP address: ");
@@ -57,9 +57,8 @@ void setup() {
   serverTime = millis();
 
   strip_top.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip_top.show();            // Turn OFF all pixels ASAP
   strip_bottom.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip_bottom.show();
+  setLed();
 
   // 엔코더의 핀들을 입력으로 설정
   pinMode(CLK, INPUT);
@@ -71,26 +70,6 @@ void setup() {
 }
 
 void loop() {
-  //  while (!wifiAccess) {
-  //    delay(500);
-  //    Serial.print(".");
-  //    if (WiFi.status() == WL_CONNECTED) {
-  //      wifiAccess = true;
-  //      Serial.println();
-  //      Serial.print("Connected, IP address: ");
-  //      Serial.println(WiFi.localIP());
-  //
-  //      server.on("/" , handleRoot);
-  //      server.onNotFound(handleWebRequests);
-  //      server.begin();
-  //      webSocket.begin();
-  //      webSocket.onEvent(webSocketEvent);
-  //
-  //      Serial.println("HTTP server started");
-  //      serverTime = millis();
-  //      break;
-  //    }
-  //  }
   webSocket.loop();
 
   currentStateCLK = digitalRead(CLK);
@@ -99,26 +78,12 @@ void loop() {
     if (digitalRead(DT) != currentStateCLK) {
       brightness += 10;
       if (brightness > 254) brightness = 255;
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
+      setLed();
     }
     else {
       brightness -= 10;
       if (brightness < 1) brightness = 0;
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
+      setLed();
     }
   }
 
@@ -128,29 +93,14 @@ void loop() {
       else temp += 200;
       if (temp > 11000) temp = 11000;
       kelvinToRGB(temp);
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
-
+      setLed();
     }
     else {
       if (temp >= 6600) temp -= 400;
       else temp -= 200;
       if (temp < 700) temp = 700;
       kelvinToRGB(temp);
-      strip_top.setBrightness(brightness);
-      strip_bottom.setBrightness(brightness);
-      for (int i = 0; i < LED_COUNT; i++) {
-        strip_top.setPixelColor(i, red, green, blue);
-        strip_bottom.setPixelColor(i, red, green, blue);
-      }
-      strip_top.show();
-      strip_bottom.show();
+      setLed();
     }
   }
   lastStateCLK = currentStateCLK;
@@ -168,6 +118,17 @@ void loop() {
     char c[] = {(char)Serial.read()};
     webSocket.broadcastTXT(c, sizeof(c));
   }
+}
+
+void setLed() {
+  strip_top.setBrightness(brightness);
+  strip_bottom.setBrightness(brightness);
+  for (int i = 0; i < LED_COUNT; i++) {
+    strip_top.setPixelColor(i, red, green, blue);
+    strip_bottom.setPixelColor(i, red, green, blue);
+  }
+  strip_top.show();
+  strip_bottom.show();
 }
 
 void kelvinToRGB(int Temperature) {
@@ -257,31 +218,20 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
 
 void changeMessage(uint8_t* s) {
   int num = 0;
+  int webTemp = 0;
   if (s[0] == 'K') { //온도
     for (int i = 1; i <= 9; i++) num = num * 10 + (s[i] - '0');
+    for (int i = 11; i <= 15; i++) webTemp = webTemp * 10 + (s[i] - '0');
     red = num / 1000000;
     green = (num % 1000000) / 1000;
     blue = (num % 1000);
-    strip_top.setBrightness(brightness);
-    strip_bottom.setBrightness(brightness);
-    for (int i = 0; i < LED_COUNT; i++) {
-      strip_top.setPixelColor(i, red, green, blue);
-      strip_bottom.setPixelColor(i, red, green, blue);
-    }
-    strip_top.show();
-    strip_bottom.show();
+    temp = webTemp;
+    setLed();
   }
   else if (s[0] == 'B') {
     for (int i = 2; i <= 4; i++) num = num * 10 + (s[i] - '0');
     brightness = num;
-    strip_top.setBrightness(brightness);
-    strip_bottom.setBrightness(brightness);
-    for (int i = 0; i < LED_COUNT; i++) {
-      strip_top.setPixelColor(i, red, green, blue);
-      strip_bottom.setPixelColor(i, red, green, blue);
-    }
-    strip_top.show();
-    strip_bottom.show();
+    setLed();
   }
   else if (s[0] == 'D') {
     strip_top.setBrightness(0);
