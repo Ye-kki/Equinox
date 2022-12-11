@@ -2,7 +2,7 @@
 
 ### 올리브 나무를 위한 IoT 화분 조명
 
-gif
+![gif.gif](img/gif.gif)
 
 ## Concept
 
